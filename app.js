@@ -10,6 +10,8 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+var db = new mongo.Db('myapp', new mongo.Server('localhost', 27017, {auto_reconnect: true}));
+var people = db.collection('people');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +25,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
+//app.use('/', routes);
+
+app.get('/', function (req, res) {
+    people.find().toArray(function (err, docs) {
+        if(err) throw err;
+        res.render('index.jade', {people : docs});
+    });
+})
+
 app.use('/users', users);
 
 // catch 404 and forward to error handler
